@@ -1,0 +1,167 @@
+@startuml
+package "model"{
+    class Usuario{
+        -id: int
+        -nome: string
+        -email: string
+        -senha: string
+        -numero:string
+    }
+    class Admin extends Usuario{
+        -id: int
+        -nome: string
+        -email: string
+        -senha: string
+        -numero:string
+    }
+    class Estadio extends Usuario{
+        - id: int
+        -nome: string
+        -email: string
+        -senha: string
+        -numero:string
+        -tamanho:double
+        -areaCampo:double
+        -gastosMensalKw:double
+        -gastosMensalReais:double
+    }
+    class Relatorio{
+        -idRelatório: int
+        -idEstadio: int
+        -descricao: string
+        -conclusao: string
+    }
+    class Orcamento{
+        -idOrcamento: int
+        -idEstadio: int
+        -tamanho: double
+        -areaCampo: double
+        -gastoMensalKw: double
+        -tetoGasto: double
+        -aprovado : boolean
+    }
+    class PropostaB2B{
+        -idProposta: int
+        -idEstadio: int
+        -idTipoChao: int
+        -valor: double
+        -descricao: string
+        -gastoMensalKw: double
+    }
+    class TipoChao{
+        -idTipoChao: int
+        -nome: string
+        -geracaoEstimadaKw: double
+        -custoPorMetro:double
+    }
+    class TransacaoB2B{
+        -idTransacao: int
+        -idProposta: int
+        -idAdmin: int
+        -valor: double
+        -descricao: string
+    }
+
+}
+
+package "dao"{
+    class BaseDAO{
+        -connection: Connection
+    }
+    class EstadioDAO extends BaseDAO{
+        +listarTodos(): List<Estadio>
+        +criarEstadio(estadio:Estadio):boolean
+        +criarEstadioParaUsuario(estadio:Estadio, usuario:Usuario):boolean
+        +atualizarEstadio(estadio:Estadio):boolean
+        +buscarPorUsuarioId(idUsuario: int):Estadio
+        +buscarIdEstadioPorEmail(email: string):Estadio
+        +removerEstadio(idEstadio: int):boolean
+    }    
+    class OrcamentoDAO extends BaseDAO{
+        +listarTodosPendentes(): List<Orcamento>
+        +criarOrcamento(orcamento:Orcamento):boolean
+        +atualizarOrcamento(orcamento:Orcamento):boolean
+        +buscarOrcamentoPorId(idOrcamento: int):Orcamento
+        +listarTodos(): List<Orcamento>
+    }
+    class PropostaB2BDAO extends BaseDAO{
+        +listarTodos(): List<PropostaB2B>
+        +criarProposta(proposta:PropostaB2B):boolean
+    }
+    class RelatorioDAO extends BaseDAO{
+        +listarTodos(): List<Relatorio>
+        +listarRelatoriosPorEstadio(idEstadio: int): List<Relatorio>
+        +criarRelatorio(relatorio:Relatorio):boolean
+        +removerRelatorio(idRelatorio: int):boolean
+    }
+    class TipoChaoDAO extends BaseDAO{
+        +listarTodos(): List<TipoChao>
+    }
+    class TransacaoB2BDAO extends BaseDAO{
+        +criarTransacao(transacao:TransacaoB2B):boolean
+        +listarTodos(): List<TransacaoB2B>
+    }
+    class UsuarioDAO extends BaseDAO{
+        +login(email: string, senha: string):Usuario
+        +isUsuarioAdmin(id: int):boolean
+    }
+}
+
+package "connection"{
+    class ConnectionFactory{
+        -dbUrl: string
+        -dbUsername: string
+        -dbPassword: string
+        -dbDriver: string
+        +getConnection(): Connection
+    }
+}
+
+package "view"{
+    class MenuConsole{
+        - usuarioDAO: UsuarioDAO
+        - estadioDAO: EstadioDAO
+        - orcamentoDAO: OrcamentoDAO
+        - propostaB2BDAO: PropostaB2BDAO
+        - relatorioDAO: RelatorioDAO
+        - transacaoDAO: TransacaoB2BDAO
+
+        +iniciarSistema():void
+        -clienteMenu(scanner:Scanner, usuarioLogado:usuario):void
+        -adminMenu(scanner:Scanner, usuarioLogado:usuario):void
+        -gastoEnergeticoMenu(scanner:Scanner, usuarioLogado:usuario):void
+        -cadastrarEstadioUsuario(scanner:Scanner):void
+        -cadastrarEstadio(scanner:Scanner, usuarioLogado:Usuario):void
+        -solicitarOrcamento(scanner:Scanner, usuarioLogado:usuario):void
+        -verDadosEstadio(usuarioLogado:usuario):void
+        -gerenciarTransacoes(scanner:Scanner, usuarioLogado:usuario):void
+        -listarTransacao():void
+        -criarTranascao(scanner:Scanner, usuarioLogado:usuario):void
+    }
+}
+
+EstadioDAO --> Estadio : usa
+OrcamentoDAO --> Orcamento : usa
+PropostaB2BDAO --> PropostaB2B : usa
+RelatorioDAO --> Relatorio : usa
+TipoChaoDAO --> TipoChao : usa
+TransacaoB2BDAO --> TransacaoB2B : usa
+UsuarioDAO --> Usuario : usa
+BaseDAO --> ConnectionFactory : usa
+
+MenuConsole --> UsuarioDAO : usa
+MenuConsole --> EstadioDAO : usa
+MenuConsole --> OrcamentoDAO : usa
+MenuConsole --> PropostaB2BDAO : usa
+MenuConsole --> RelatorioDAO : usa
+MenuConsole --> TransacaoB2BDAO : usa
+
+MenuConsole --> Usuario : usa
+MenuConsole --> Estadio : usa
+MenuConsole --> Orcamento : usa
+MenuConsole --> PropostaB2B : usa
+MenuConsole --> Relatorio : usa
+MenuConsole --> TipoChao : usa
+MenuConsole --> TransacaoB2B : usa
+
+@enduml
